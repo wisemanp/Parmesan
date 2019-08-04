@@ -32,16 +32,6 @@ def parser():
     return parser.parse_args()
 
 
-def vis_curve(m,i,ra,dec,counter,ax,**kwargs):
-    obj_coord = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
-
-    obj_altazs= obj_coord.transform_to(tonight)
-
-    ax.plot_date(obj_altazs.obstime.datetime,
-                 obj_altazs.alt,
-                 marker=None,**kwargs)
-
-    return(obj_altazs)
 
 class marshall_list():
 
@@ -65,7 +55,7 @@ class marshall_list():
         timezone = pytz.timezone('America/Santiago')
         midnight = datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1)
         delta_midnight = np.linspace(-8, 10, 1000)*u.hour
-        tonight = AltAz(obstime=midnight+delta_midnight,
+        self.tonight = AltAz(obstime=midnight+delta_midnight,
                                   location=self.loc)
         # to add later
     def cut_old_detections(self,age=7):
@@ -76,34 +66,42 @@ class marshall_list():
         newdate = self.time_now.to_datetime()-timedelta(age)
         self.df  = self.df[pd.to_datetime(self.df['discovery date'])>newdate]
 
-    def plot(self,ax,):
-        null_patches=[]
+    def get_obj_altaz(self,ra,dec):
+        obj_coord = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
+        obj_altazs= obj_coord.transform_to(self.tonight)
+        return obj_altazs
+
+
+    def plot_vis_obj(self,ax,**kwargs):
+        ax.plot_date(obj_altazs.obstime.datetime,
+                     obj_altazs.alt,
+                     marker=None,**kwargs)
+
+
+    def plot_priority(self,ax):
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
             obj = self.df.loc[i]
-            discdate = datetime.strptime(obj['discovery date'],"%Y-%m-%d")
-            newdate = self.time_now.to_datetime()-timedelta(n)
-            if  discdate> newdate:
-                #c=next(palette)
 
-                print('Doing %s'%obj['name'])
-                priority = obj['priority']
-                altaz = vis_curve(self,
-                                 i,
-                                 obj['ra'],
-                                 obj['dec'],
-                                 counter,
-                                 ax,
-                                 color=priority_map[priority]['c'],
-                                 linestyle=priority_map[priority]['ls'])
-                xy = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
-                    altaz.alt.to_value().max())
-                print(xy)
-                xytext = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
-                    altaz.alt.to_value().max()+1)
-                ax.annotate(counter,xy=xy,xytext=xytext,color='w',size=9)
-                null_patches.append(mpatches.Patch(color='white',
-                                    label = str(counter+1) + ': '+obj['name'],
-                                                   ))
+            print('Doing %s'%obj['name'])
+            priority = obj['priority']
+            altaz = vis_curve(self,
+                             i,
+                             obj['ra'],
+                             obj['dec'],
+                             counter,
+                             ax,
+                             color=priority_map[priority]['c'],
+                             linestyle=priority_map[priority]['ls'])
+            xy = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
+                altaz.alt.to_value().max())
+            print(xy)
+            xytext = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
+                altaz.alt.to_value().max()+1)
+            ax.annotate(counter,xy=xy,xytext=xytext,color='w',size=9)
+            null_patches.append(mpatches.Patch(color='white',
+                                label = str(counter+1) + ': '+obj['name'],
+                                               ))
+            return ax
 
 
 def main():
@@ -113,7 +111,7 @@ def main():
     f,ax = plt.subplots(figsize=(10,6))
 
     utcoffset = -4*u.hour  # Eastern Daylight Time
-    m = 
+    m =
 
 
 
