@@ -37,7 +37,8 @@ class marshall_list():
         if site == 'La Silla':
             self.tz = 'America/Santiago'
         self._set_tonight()
-        
+        self._plot_base()
+
     def _set_observatory(self,site):
         '''Sets the observatory site'''
         if site == 'La Silla':
@@ -50,10 +51,50 @@ class marshall_list():
         arguments: date (str)
         '''
         timezone = pytz.timezone(self.tz)
-        midnight = datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1)
+        utcoffset = datetime.now(timezone).utcoffset()
+        midnight = Time(datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1)-utcoffset)
+        self.midnight = midnight
         delta_midnight = np.linspace(-8, 10, 1000)*u.hour
         self.tonight = AltAz(obstime=midnight+delta_midnight,
                                   location=self.loc)
+    def _plot_base(self):
+        f,ax = plt.subplots(figsize=(10,6))
+
+
+        # Sun! ##############################
+        t = self.tonight.obstime.value
+        ax.hlines(20,t[0],t[-1],linestyle='--',color='white',linewidth=3)
+        sunaltazs_tonight = get_sun(self.tonight.obstime).transform_to(self.tonight)
+        self.plot_vis_obj(sunaltazs_tonight,ax =ax,
+                     linestyle='dashed',label = 'Sun',color='orange',linewidth=10)
+
+        plt.fill_between(t, 0, 90,
+                         sunaltazs_tonight.alt < -0*u.deg, color='midnightblue', zorder=0)
+        plt.fill_between(t, 0, 90,
+                         sunaltazs_tonight.alt < -18*u.deg, color='k', zorder=0)
+        plt.fill_between(t, 0, 90,
+                         sunaltazs_tonight.alt >= 0*u.deg, color='deepskyblue', zorder=0)
+        ####################################
+
+        xloc = ax.xaxis.set_major_locator(HourLocator(byhour=range(0,24,2)))
+        hours_fmt = DateFormatter('%H')
+        ax.xaxis.set_major_formatter(hours_fmt)
+
+        # LEGEND
+
+
+        # Axes Limits and Labels
+        plt.grid(color='w',alpha=0.7)
+        ax.set_xlabel('Time (UT)',fontsize=16)
+        ax.set_ylim(0,90)
+        ax.set_ylabel('Altitude (deg)',fontsize=16)
+        plt.tick_params(which='both',direction='inout')
+        plt.title('NTT Visibility ' + datetime.strftime(sunaltazs_tonight.obstime[0].to_datetime(),"%Y-%m-%d"),
+                                                       fontsize=18)
+        fontP = FontProperties()
+        fontP.set_size('small')
+        ax.legend(title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
+                  ncol=1, fancybox=True, shadow=True)
 
     def set_time(self,date='today'):
         '''Sets the time to now'''
@@ -66,8 +107,9 @@ class marshall_list():
         arguments: date (str)
         '''
         timezone = pytz.timezone(self.tz)
+        utcoffset = datetime.now(timezone).utcoffset()
         if not date:
-            midnight = datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1)
+            midnight = datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1) + utcoffset
         else:
             midnight = datetime.strptime(date,'%d/%m/%y')
         delta_midnight = np.linspace(-8, 10, 1000)*u.hour
@@ -80,19 +122,19 @@ class marshall_list():
         except:
             raise Exception("Site not in Astropy database. Try EarthLocation.get_site_names()")
 
+
     def cut_old_detections(self,age=7):
         '''Cuts objects first detected more than a certain time ago
         parameters: date (str)
         '''
 
-        newdate = self.time_now.to_datetime()-timedelta(age)
+        newdate = datetime.now()-timedelta(age)
         self.df  = self.df[pd.to_datetime(self.df['discovery date'])>newdate]
 
     def get_obj_altaz(self,ra,dec):
         obj_coord = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
         obj_altazs= obj_coord.transform_to(self.tonight)
         return obj_altazs
-
 
     def plot_vis_obj(self,obj_altazs,ax=None,**kwargs):
         if not ax:
@@ -101,15 +143,14 @@ class marshall_list():
                      obj_altazs.alt,
                      marker=None,**kwargs)
 
-
     def plot_priority_classify(self,ax=None):
         if not ax:
             ax = plt.gca()
         null_patches = []
         priority_map = {
-            'HIGH':{'c':'g','ls':'-'},
-            'MEDIUM':{'c':'y','ls':'--'},
-            'LOW':{'c':'r','ls':':'}
+            'HIGH':{'c':'g','ls':'-','lw':3,'alpha':0.9},
+            'MEDIUM':{'c':'y','ls':'--','lw':2,'alpha':0.7},
+            'LOW':{'c':'r','ls':':','lw':1,'alpha':0.7}
         }
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
             obj = self.df.loc[i]
@@ -119,20 +160,22 @@ class marshall_list():
             altaz = self.get_obj_altaz(obj['ra'],obj['dec'])
             self.plot_vis_obj(altaz,
                             ax=ax,
-                             color=priority_map[priority]['c'],
-                             linestyle=priority_map[priority]['ls'])
+                             **priority_map[priority])
 
             # Annotate the plot with a number corresponding to the current counter
             xy = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
                 altaz.alt.to_value().max())
             xytext = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
-                altaz.alt.to_value().max()+1)
+                altaz.alt.to_value().max()-3)
             ax.annotate(counter,xy=xy,xytext=xytext,color='w',size=9)
             null_patches.append(mpatches.Patch(color='white',
                                 label = str(counter+1) + ': '+obj['name'],
                                                ))
-        ax.legend()
-        return null_patches
+        fontP = FontProperties()
+        fontP.set_size('small')
+        ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
+                  ncol=1, fancybox=True, shadow=True)
+
 
     def plot_priority_followup(self,ax=None):
         if not ax:
@@ -163,58 +206,19 @@ class marshall_list():
             null_patches.append(mpatches.Patch(color='white',
                                 label = str(counter+1) + ': '+obj['name'],
                                                ))
-        ax.legend()
-        return null_patches
+
+        fontP = FontProperties()
+        fontP.set_size('small')
+        ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.95, 1.2),
+                  ncol=1, fancybox=True, shadow=True)
+
 
 
 def main():
     args = parser()
 
     marshall_df  = pd.read_csv(args.filename)
-    f,ax = plt.subplots(figsize=(10,6))
 
-    utcoffset = -4*u.hour  # Eastern Daylight Time
-
-    delta_midnight = np.linspace(-12, 12, 1000)*u.hour
-
-    # Sun! ##############################
-    t = altaz.obstime.value
-    ax.hlines(20,t[0],t[-1],linestyle='--',color='white',linewidth=3)
-    frame_tonight = AltAz(obstime=altaz.obstime, location=loc)
-    sunaltazs_tonight = get_sun(altaz.obstime).transform_to(frame_tonight)
-    ax.plot_date(sunaltazs_tonight.obstime.datetime,sunaltazs_tonight.alt,
-                 linestyle='dashed',marker=None,label = 'Sun',color='yellow',linewidth=10)
-
-    plt.fill_between(t, 0, 90,
-                     sunaltazs_tonight.alt < -0*u.deg, color='midnightblue', zorder=0)
-    plt.fill_between(t, 0, 90,
-                     sunaltazs_tonight.alt < -18*u.deg, color='k', zorder=0)
-    plt.fill_between(t, 0, 90,
-                     sunaltazs_tonight.alt >= 0*u.deg, color='deepskyblue', zorder=0)
-    ####################################
-
-    xloc = ax.xaxis.set_major_locator(HourLocator(byhour=range(0,24,2)))
-    hours_fmt = DateFormatter('%H')
-    ax.xaxis.set_major_formatter(hours_fmt)
-
-    # LEGEND
-
-
-    fontP = FontProperties()
-    fontP.set_size('small')
-
-
-    ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.95, 1.2),
-              ncol=1, fancybox=True, shadow=True)
-
-    # Axes Limits and Labels
-    plt.grid(color='w',alpha=0.7)
-    ax.set_xlabel('Time (UT)',fontsize=16)
-    ax.set_ylim(0,90)
-    ax.set_ylabel('Altitude (deg)',fontsize=16)
-    plt.tick_params(which='both',direction='inout')
-    plt.title('NTT Visibility ' + datetime.strftime(sunaltazs_tonight.obstime[0].to_datetime(),"%Y-%m-%d"),
-                                                   fontsize=18)
     plt.show()
 
 if __name__ =="__main__":
