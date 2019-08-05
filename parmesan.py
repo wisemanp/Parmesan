@@ -20,11 +20,7 @@ import argparse
 
 plt.style.use('seaborn-colorblind')
 sns.set_color_codes(palette='colorblind')
-priority_map = {
-    'HIGH':{'c':'g','ls':'-'},
-    'MEDIUM':{'c':'c','ls':'--'},
-    'LOW':{'c':'red','ls':':'}
-}
+
 def parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f','--filename',help='PESSTO Marshall .csv file',default=None)
@@ -86,21 +82,31 @@ class marshall_list():
         return obj_altazs
 
 
-    def plot_vis_obj(self,ax,obj_altazs,**kwargs):
+    def plot_vis_obj(self,obj_altazs,ax=None,**kwargs):
+        if not ax:
+            ax = plt.gca()
         ax.plot_date(obj_altazs.obstime.datetime,
                      obj_altazs.alt,
                      marker=None,**kwargs)
 
 
-    def plot_priority(self,ax):
+    def plot_priority_classify(self,ax=None):
+        if not ax:
+            ax = plt.gca()
         null_patches = []
+        priority_map = {
+            'HIGH':{'c':'g','ls':'-'},
+            'MEDIUM':{'c':'y','ls':'--'},
+            'LOW':{'c':'r','ls':':'}
+        }
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
             obj = self.df.loc[i]
 
             print('Doing %s'%obj['name'])
             priority = obj['priority']
             altaz = get_obj_altaz(self,obj['ra'],obj['dec'])
-            plot_vis_obj(self,ax,
+            plot_vis_obj(self,altaz,
+                            ax=ax,
                              color=priority_map[priority]['c'],
                              linestyle=priority_map[priority]['ls'])
 
@@ -113,6 +119,39 @@ class marshall_list():
             null_patches.append(mpatches.Patch(color='white',
                                 label = str(counter+1) + ': '+obj['name'],
                                                ))
+        ax.legend()
+        return null_patches
+
+    def plot_priority_followup(self,ax=None):
+        if not ax:
+            ax = plt.gca()
+        null_patches = []
+        priority_map = {
+            'CRITICAL':{'c':'g','ls':'-'},
+            'IMPORTANT':{'c':'y','ls':'--'},
+            'USEFUL':{'c':'r','ls':':'}
+        }
+        for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
+            obj = self.df.loc[i]
+
+            print('Doing %s'%obj['name'])
+            priority = obj['priority']
+            altaz = get_obj_altaz(self,obj['ra'],obj['dec'])
+            plot_vis_obj(self,altaz,
+                            ax=ax,
+                             color=priority_map[priority]['c'],
+                             linestyle=priority_map[priority]['ls'])
+
+            # Annotate the plot with a number corresponding to the current counter
+            xy = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
+                altaz.alt.to_value().max())
+            xytext = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
+                altaz.alt.to_value().max()+1)
+            ax.annotate(counter,xy=xy,xytext=xytext,color='w',size=9)
+            null_patches.append(mpatches.Patch(color='white',
+                                label = str(counter+1) + ': '+obj['name'],
+                                               ))
+        ax.legend()
         return null_patches
 
 
