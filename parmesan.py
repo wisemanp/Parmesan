@@ -98,7 +98,7 @@ class marshall_list():
                   ncol=1, fancybox=True, shadow=True)
 
     def set_time(self,date='today'):
-        '''Sets the time to now
+        '''Sets the time to now'''
         if date == 'today':
             self.time_now = Time.now()
 
