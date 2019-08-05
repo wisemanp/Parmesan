@@ -178,7 +178,7 @@ class marshall_list():
                                                ))
         fontP = FontProperties()
         fontP.set_size('small')
-        l = plt.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
+        l = plt.legend(handles=null_patches,title="Classifications", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
                   ncol=1, fancybox=True, shadow=True)
         ax.add_artist(l)
         self.counter=counter+1
@@ -226,7 +226,7 @@ class marshall_list():
 
         fontP = FontProperties()
         fontP.set_size('small')
-        l = plt.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper left', bbox_to_anchor=(0.1, 1),
+        l = plt.legend(handles=null_patches,title='Follow-up', prop=fontP,loc='upper left', bbox_to_anchor=(-0.1, 1),
                   ncol=1, fancybox=True, shadow=True)
         ax.add_artist(l)
         self.counter=counter
