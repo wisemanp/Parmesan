@@ -197,7 +197,7 @@ class marshall_list():
         for counter,objname in enumerate(list):
             counter= counter+self.counter
 
-            obj = self.df[self.df['name']==objname]
+            obj = self.df.loc[self.df[self.df['name']==objname].index]
 
             print('Doing %s'%obj['name'],counter)
             priority = obj['priority']
