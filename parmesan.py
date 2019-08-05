@@ -58,7 +58,10 @@ LS = EarthLocation.of_site('La Silla Observatory')
 utcoffset = -4*u.hour  # Eastern Daylight Time
 timezone =pytz.timezone('America/Santiago')
 time = Time(datetime.combine(datetime.now(timezone).date(), time(0, 0))) - utcoffset
-newdate = datetime.now(timezone).date() -timedelta(age)
+agelim = input("N_days in marshall to cut at in days: [7] ")
+if not agelim:
+    agelim = 7
+newdate = datetime.now(timezone).date() -timedelta(agelim)
 '''n=0
 
 for i in marshall.index:
