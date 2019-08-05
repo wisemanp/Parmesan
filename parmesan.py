@@ -104,8 +104,8 @@ class marshall_list():
 
             print('Doing %s'%obj['name'])
             priority = obj['priority']
-            altaz = get_obj_altaz(self,obj['ra'],obj['dec'])
-            plot_vis_obj(self,altaz,
+            altaz = self.get_obj_altaz(obj['ra'],obj['dec'])
+            self.plot_vis_obj(altaz,
                             ax=ax,
                              color=priority_map[priority]['c'],
                              linestyle=priority_map[priority]['ls'])
@@ -136,8 +136,8 @@ class marshall_list():
 
             print('Doing %s'%obj['name'])
             priority = obj['priority']
-            altaz = get_obj_altaz(self,obj['ra'],obj['dec'])
-            plot_vis_obj(self,altaz,
+            altaz = self.get_obj_altaz(obj['ra'],obj['dec'])
+            self.plot_vis_obj(altaz,
                             ax=ax,
                              color=priority_map[priority]['c'],
                              linestyle=priority_map[priority]['ls'])
@@ -162,7 +162,7 @@ def main():
     f,ax = plt.subplots(figsize=(10,6))
 
     utcoffset = -4*u.hour  # Eastern Daylight Time
-    
+
     delta_midnight = np.linspace(-12, 12, 1000)*u.hour
 
     # Sun! ##############################
