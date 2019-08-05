@@ -58,7 +58,7 @@ LS = EarthLocation.of_site('La Silla Observatory')
 utcoffset = -4*u.hour  # Eastern Daylight Time
 timezone =pytz.timezone('America/Santiago')
 time = Time(datetime.combine(datetime.now(timezone).date(), time(0, 0))) - utcoffset
-newdate = datetime.strptime("20/07/2019", "%d/%m/%Y")
+newdate = datetime.now(timezone).date() -timedelta(age)
 '''n=0
 
 for i in marshall.index:
