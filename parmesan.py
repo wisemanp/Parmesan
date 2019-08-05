@@ -61,7 +61,7 @@ time = Time(datetime.combine(datetime.now(timezone).date(), time(0, 0))) - utcof
 agelim = input("N_days in marshall to cut at in days: [7] ")
 if not agelim:
     agelim = 7
-newdate = datetime.now(timezone).date() -timedelta(agelim)
+newdate = datetime.now(timezone).date() -timedelta(int(agelim))
 '''n=0
 
 for i in marshall.index:
