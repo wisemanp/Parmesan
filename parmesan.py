@@ -43,9 +43,6 @@ def vis_curve(i,ra,dec,counter,**kwargs):
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
-
-
-plt.show()
 priority_map = {
     'HIGH':{'c':'g','ls':'-'},
     'MEDIUM':{'c':'c','ls':'--'},
@@ -134,3 +131,6 @@ plt.tick_params(which='both',direction='inout')
 plt.title('NTT Visibility ' + datetime.strftime(sunaltazs_tonight.obstime[0].to_datetime(),"%Y-%m-%d"),
                                                fontsize=18)
 plt.show()
+plt.close()
+savename = os.path.join(os.curdir(),'NTT_visibility'+now.strftime(format='%y-%m-%dT%H.%M'+'.png'))
+plt.savefig(savename)
