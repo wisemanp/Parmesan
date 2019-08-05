@@ -42,6 +42,7 @@ class marshall_list():
             self._plot_base()
         self.counter=count
 
+
     def _set_observatory(self,site):
         '''Sets the observatory site'''
         if site == 'La Silla':
@@ -159,6 +160,44 @@ class marshall_list():
             counter= counter+self.counter
 
             obj = self.df.loc[i]
+
+            print('Doing %s'%obj['name'],counter)
+            priority = obj['priority']
+            altaz = self.get_obj_altaz(obj['ra'],obj['dec'])
+            self.plot_vis_obj(altaz,
+                            ax=ax,
+                             **priority_map[priority])
+
+            # Annotate the plot with a number corresponding to the current counter
+            xy = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
+                altaz.alt.to_value().max())
+            xytext = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
+                altaz.alt.to_value().max()-3)
+            ax.annotate(counter+1,xy=xy,xytext=xytext,color='w',size=9)
+            null_patches.append(mpatches.Patch(color='white',
+                                label = str(counter+1) + ': '+obj['name'],
+                                               ))
+        fontP = FontProperties()
+        fontP.set_size('small')
+        l = plt.legend(handles=null_patches,title="Classifications", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
+                  ncol=1, fancybox=True, shadow=True)
+        ax.add_artist(l)
+        self.counter=counter+1
+        print('Finished plotting %s objects'%self.counter)
+
+    def plot_namelist(self,list,ax=None):
+        if not ax:
+            ax = plt.gca()
+        null_patches = []
+        priority_map = {
+            'HIGH':{'c':'g','ls':'-','lw':3,'alpha':0.9},
+            'MEDIUM':{'c':'y','ls':'--','lw':2,'alpha':0.7},
+            'LOW':{'c':'r','ls':':','lw':1,'alpha':0.7}
+        }
+        for counter,objname in enumerate(list):
+            counter= counter+self.counter
+
+            obj = self.df[self.df['name']==objname]
 
             print('Doing %s'%obj['name'],counter)
             priority = obj['priority']
