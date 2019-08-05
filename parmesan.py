@@ -74,7 +74,7 @@ null_patches=[]
 for counter,i in enumerate(marshall.sort_values(by='discovery date',ascending=False).index):
     discdate = datetime.strptime(marshall['discovery date'].loc[i],"%Y-%m-%d")
 
-    if  discdate> newdate:
+    if  discdate.date> newdate:
         #c=next(palette)
         print('Doing %s'%marshall['name'].loc[i])
         #t = vis_curve(i,marshall['ra'].loc[i],marshall['dec'].loc[i]).to_value()
