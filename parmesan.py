@@ -57,7 +57,7 @@ f,ax = plt.subplots(figsize=(10,6))
 LS = EarthLocation.of_site('La Silla Observatory')
 utcoffset = -4*u.hour  # Eastern Daylight Time
 timezone =pytz.timezone('America/Santiago')
-time = Time(datetime.combine(datetime.now(timezone).date(), time(0, 0))) - utcoffset
+
 agelim = input("Discovery date to cut at in days: [7] ")
 if not agelim:
     agelim = 7
