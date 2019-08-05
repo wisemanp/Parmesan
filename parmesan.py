@@ -162,8 +162,7 @@ def main():
     f,ax = plt.subplots(figsize=(10,6))
 
     utcoffset = -4*u.hour  # Eastern Daylight Time
-    m =
-
+    
     delta_midnight = np.linspace(-12, 12, 1000)*u.hour
 
     # Sun! ##############################
