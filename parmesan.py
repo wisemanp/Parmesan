@@ -35,11 +35,12 @@ def parser():
 
 class marshall_list():
 
-    def __init__(self,df):
+    def __init__(self,df,site= 'La Silla'):
         self.df = df
-        self.set_observatory()
-
-    def set_observatory(self,site = 'La Silla'):
+        self._set_observatory(site)
+        if site == 'La Silla':
+            self.tz = 'America/Santiago'
+    def _set_observatory(self,site):
         '''Sets the observatory site'''
         if site == 'La Silla':
             self.loc = EarthLocation.of_site('La Silla Observatory')
@@ -51,13 +52,26 @@ class marshall_list():
         if date == 'today':
             self.time_now = Time.now()
 
-    def set_night(self):
-        timezone = pytz.timezone('America/Santiago')
-        midnight = datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1)
+    def set_night(self,date=None, ):
+        '''
+        Takes date in format dd/mm/yy and sets the night as starting on the date before
+        arguments: date (str)
+        '''
+        timezone = pytz.timezone(self.tz)
+        if not date:
+            midnight = datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1)
+        else:
+            midnight = datetime.strptime(date,'%d/%m/%y')
         delta_midnight = np.linspace(-8, 10, 1000)*u.hour
         self.tonight = AltAz(obstime=midnight+delta_midnight,
                                   location=self.loc)
         # to add later
+    def set_site(self,site):
+        try:
+            EarthLocation.of_site(site)
+        except:
+            raise Exception("Site not in Astropy database. Try EarthLocation.get_site_names()")
+
     def cut_old_detections(self,age=7):
         '''Cuts objects first detected more than a certain time ago
         parameters: date (str)
@@ -72,36 +86,34 @@ class marshall_list():
         return obj_altazs
 
 
-    def plot_vis_obj(self,ax,**kwargs):
+    def plot_vis_obj(self,ax,obj_altazs,**kwargs):
         ax.plot_date(obj_altazs.obstime.datetime,
                      obj_altazs.alt,
                      marker=None,**kwargs)
 
 
     def plot_priority(self,ax):
+        null_patches = []
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
             obj = self.df.loc[i]
 
             print('Doing %s'%obj['name'])
             priority = obj['priority']
-            altaz = vis_curve(self,
-                             i,
-                             obj['ra'],
-                             obj['dec'],
-                             counter,
-                             ax,
+            altaz = get_obj_altaz(self,obj['ra'],obj['dec'])
+            plot_vis_obj(self,ax,
                              color=priority_map[priority]['c'],
                              linestyle=priority_map[priority]['ls'])
+
+            # Annotate the plot with a number corresponding to the current counter
             xy = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
                 altaz.alt.to_value().max())
-            print(xy)
             xytext = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
                 altaz.alt.to_value().max()+1)
             ax.annotate(counter,xy=xy,xytext=xytext,color='w',size=9)
             null_patches.append(mpatches.Patch(color='white',
                                 label = str(counter+1) + ': '+obj['name'],
                                                ))
-            return ax
+        return null_patches
 
 
 def main():
@@ -112,9 +124,6 @@ def main():
 
     utcoffset = -4*u.hour  # Eastern Daylight Time
     m =
-
-
-
 
     delta_midnight = np.linspace(-12, 12, 1000)*u.hour
 
