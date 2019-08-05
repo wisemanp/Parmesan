@@ -40,6 +40,7 @@ class marshall_list():
         self._set_tonight()
         if newax:
             self._plot_base()
+        self.counter=0
 
     def _set_observatory(self,site):
         '''Sets the observatory site'''
@@ -155,6 +156,7 @@ class marshall_list():
             'LOW':{'c':'r','ls':':','lw':1,'alpha':0.7}
         }
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
+            counter= counter+self.counter
             obj = self.df.loc[i]
 
             print('Doing %s'%obj['name'])
@@ -177,7 +179,7 @@ class marshall_list():
         fontP.set_size('small')
         ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
                   ncol=1, fancybox=True, shadow=True)
-
+        self.counter=counter+1
 
     def plot_priority_followup(self,ax=None,priority='ALL'):
         '''
@@ -198,6 +200,7 @@ class marshall_list():
             has_low_priority = self.df[self.df['priority']!=priority].index
             self.df.drop(rows = has_low_priority,inplace=True)
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
+            counter = counter+self.counter
             obj = self.df.loc[i]
 
             print('Doing %s'%obj['name'])
@@ -222,7 +225,7 @@ class marshall_list():
         fontP.set_size('small')
         ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
                   ncol=1, fancybox=True, shadow=True)
-
+        self.counter=counter
 
 
 def main():
