@@ -220,7 +220,7 @@ class marshall_list():
 
         fontP = FontProperties()
         fontP.set_size('small')
-        ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.95, 1.2),
+        ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
                   ncol=1, fancybox=True, shadow=True)
 
 
