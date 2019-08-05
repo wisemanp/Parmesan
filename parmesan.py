@@ -179,7 +179,12 @@ class marshall_list():
                   ncol=1, fancybox=True, shadow=True)
 
 
-    def plot_priority_followup(self,ax=None):
+    def plot_priority_followup(self,ax=None,priority='ALL'):
+        '''
+        arguments:
+        ax: axis instance
+        priority: list of priorities to include
+        '''
         if not ax:
             ax = plt.gca()
         null_patches = []
@@ -189,6 +194,9 @@ class marshall_list():
             'USEFUL':{'c':'r','ls':':'},
             'NONE':{'c':'w','ls':':'},
         }
+        if priority !='ALL':
+            has_low_priority = self.df[self.df['priority']!=priority].index
+            self.df.drop(rows = has_low_priority,inplace=True)
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
             obj = self.df.loc[i]
 
