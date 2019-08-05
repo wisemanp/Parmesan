@@ -134,5 +134,5 @@ plt.title('NTT Visibility ' + datetime.strftime(sunaltazs_tonight.obstime[0].to_
                                                fontsize=18)
 plt.show()
 plt.close()
-savename = os.path.join(os.curdir(),'NTT_visibility'+now.strftime(format='%y-%m-%dT%H.%M'+'.png'))
+savename = os.path.join(os.curdir,'NTT_visibility'+now.strftime(format='%y-%m-%dT%H.%M'+'.png'))
 plt.savefig(savename)
