@@ -199,9 +199,9 @@ class marshall_list():
 
             obj = self.df.loc[self.df[self.df['name']==objname].index]
 
-            print('Doing %s'%obj['name'],counter)
+            print('Doing %s'%obj['name'].values[0],counter)
             priority = obj['priority']
-            altaz = self.get_obj_altaz(obj['ra'],obj['dec'])
+            altaz = self.get_obj_altaz(obj['ra'].values[0],obj['dec'].values[0]) # Want to make this neater
             self.plot_vis_obj(altaz,
                             ax=ax,
                              **priority_map[priority])
