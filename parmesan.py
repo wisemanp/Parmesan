@@ -80,7 +80,7 @@ class marshall_list():
                          sunaltazs_tonight.alt >= 0*u.deg, color='deepskyblue', zorder=0)
         ####################################
 
-        xloc = ax.xaxis.set_major_locator(HourLocator(byhour=range(0,24,2)))
+        xloc = ax.xaxis.set_major_locator(HourLocator(byhour=range(0,24,1)))
         hours_fmt = DateFormatter('%H')
         ax.xaxis.set_major_formatter(hours_fmt)
 
@@ -265,7 +265,7 @@ class marshall_list():
 
         fontP = FontProperties()
         fontP.set_size('small')
-        l = plt.legend(handles=null_patches,title='Follow-up', prop=fontP,loc='upper left', bbox_to_anchor=(0.03, 1),
+        l = plt.legend(handles=null_patches,title='Follow-up', prop=fontP,loc='upper left', bbox_to_anchor=(-0.32, 1),
                   ncol=1, fancybox=True, shadow=True)
         ax.add_artist(l)
         self.counter=counter
