@@ -28,7 +28,7 @@ marshall = pd.read_csv(fname)
 
 def vis_curve(i,ra,dec,counter,**kwargs):
     obj_coord = SkyCoord(ra=ra*u.deg,dec=dec*u.deg)
-    midnight = Time('2019-7-30 00:00:00') - utcoffset
+    midnight = Time(datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1)) - utcoffset
     delta_midnight = np.linspace(-8, 10, 1000)*u.hour
     tonight = AltAz(obstime=midnight+delta_midnight,
                               location=LS)
@@ -133,9 +133,9 @@ ax.set_xlabel('Time (UT)',fontsize=16)
 ax.set_ylim(0,90)
 ax.set_ylabel('Altitude (deg)',fontsize=16)
 plt.tick_params(which='both',direction='inout')
-plt.title('NTT Visibility ' + datetime.strftime(sunaltazs_tonight.obstime[0].to_datetime(),"%Y-%m-%d"),
+plt.title('NTT Visibility ' + datetime.now().strftime(format="%Y-%m-%d"),
                                                fontsize=18)
 plt.show()
-plt.close()
 savename = os.path.join(os.curdir,'NTT_visibility'+datetime.now().strftime(format='%y-%m-%dT%H.%M'+'.png'))
 plt.savefig(savename)
+plt.close()
