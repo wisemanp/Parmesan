@@ -32,13 +32,14 @@ def parser():
 
 class marshall_list():
 
-    def __init__(self,df,site= 'La Silla'):
+    def __init__(self,df,site= 'La Silla',newax=True):
         self.df = df
         self._set_observatory(site)
         if site == 'La Silla':
             self.tz = 'America/Santiago'
         self._set_tonight()
-        self._plot_base()
+        if newax:
+            self._plot_base()
 
     def _set_observatory(self,site):
         '''Sets the observatory site'''
@@ -185,7 +186,8 @@ class marshall_list():
         priority_map = {
             'CRITICAL':{'c':'g','ls':'-'},
             'IMPORTANT':{'c':'y','ls':'--'},
-            'USEFUL':{'c':'r','ls':':'}
+            'USEFUL':{'c':'r','ls':':'},
+            'NONE':{'c':'w','ls':':'},
         }
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
             obj = self.df.loc[i]
