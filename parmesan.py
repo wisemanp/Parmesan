@@ -17,6 +17,7 @@ from datetime import datetime,timedelta, time
 import pytz
 import itertools
 import argparse
+import os
 
 plt.style.use('seaborn-colorblind')
 sns.set_color_codes(palette='colorblind')
@@ -55,7 +56,7 @@ f,ax = plt.subplots(figsize=(10,6))
 #LS = EarthLocation(lat=(70*u.deg+44*u.arcmin+1.5*u.arcsec), lon=(-1*(29*u.deg + 15*u.arcmin +32.1*u.arcsec)), height=2375*u.m)
 LS = EarthLocation.of_site('La Silla Observatory')
 utcoffset = -4*u.hour  # Eastern Daylight Time
-time = Time(datetime.now()) - utcoffset
+time = Time(datetime.combine(datetime.now(timezone).date(), time(0, 0))) - utcoffset
 newdate = datetime.strptime("20/07/2019", "%d/%m/%Y")
 '''n=0
 
