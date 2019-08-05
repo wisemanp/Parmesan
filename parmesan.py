@@ -58,7 +58,7 @@ LS = EarthLocation.of_site('La Silla Observatory')
 utcoffset = -4*u.hour  # Eastern Daylight Time
 timezone =pytz.timezone('America/Santiago')
 time = Time(datetime.combine(datetime.now(timezone).date(), time(0, 0))) - utcoffset
-agelim = input("N_days in marshall to cut at in days: [7] ")
+agelim = input("Discovery date to cut at in days: [7] ")
 if not agelim:
     agelim = 7
 newdate = datetime.now(timezone).date() -timedelta(int(agelim))
@@ -137,5 +137,5 @@ plt.title('NTT Visibility ' + datetime.strftime(sunaltazs_tonight.obstime[0].to_
                                                fontsize=18)
 plt.show()
 plt.close()
-savename = os.path.join(os.curdir,'NTT_visibility'+now.strftime(format='%y-%m-%dT%H.%M'+'.png'))
+savename = os.path.join(os.curdir,'NTT_visibility'+datetime.now().strftime(format='%y-%m-%dT%H.%M'+'.png'))
 plt.savefig(savename)
