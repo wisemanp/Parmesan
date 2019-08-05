@@ -168,7 +168,7 @@ class marshall_list():
                 altaz.alt.to_value().max())
             xytext = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
                 altaz.alt.to_value().max()-3)
-            ax.annotate(counter,xy=xy,xytext=xytext,color='w',size=9)
+            ax.annotate(counter+1,xy=xy,xytext=xytext,color='w',size=9)
             null_patches.append(mpatches.Patch(color='white',
                                 label = str(counter+1) + ': '+obj['name'],
                                                ))
