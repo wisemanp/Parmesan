@@ -200,7 +200,7 @@ class marshall_list():
             obj = self.df.loc[self.df[self.df['name']==objname].index]
 
             print('Doing %s'%obj['name'].values[0],counter)
-            priority = obj['priority']
+            priority = obj['priority'].values[0]
             altaz = self.get_obj_altaz(obj['ra'].values[0],obj['dec'].values[0]) # Want to make this neater
             self.plot_vis_obj(altaz,
                             ax=ax,
@@ -213,7 +213,7 @@ class marshall_list():
                 altaz.alt.to_value().max()-3)
             ax.annotate(counter+1,xy=xy,xytext=xytext,color='w',size=9)
             null_patches.append(mpatches.Patch(color='white',
-                                label = str(counter+1) + ': '+obj['name'],
+                                label = str(counter+1) + ': '+obj['name'].values[0],
                                                ))
         fontP = FontProperties()
         fontP.set_size('small')
