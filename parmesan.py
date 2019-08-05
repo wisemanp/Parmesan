@@ -36,19 +36,31 @@ class marshall_list():
         self._set_observatory(site)
         if site == 'La Silla':
             self.tz = 'America/Santiago'
+        self._set_tonight()
+        
     def _set_observatory(self,site):
         '''Sets the observatory site'''
         if site == 'La Silla':
             self.loc = EarthLocation.of_site('La Silla Observatory')
         else:
             self.loc = EarthLocation.of_site(site)
+    def _set_tonight(self):
+        '''
+        Takes date in format dd/mm/yy and sets the night as starting on the date before
+        arguments: date (str)
+        '''
+        timezone = pytz.timezone(self.tz)
+        midnight = datetime.combine(datetime.now(timezone).date(), time(0, 0)) + timedelta(1)
+        delta_midnight = np.linspace(-8, 10, 1000)*u.hour
+        self.tonight = AltAz(obstime=midnight+delta_midnight,
+                                  location=self.loc)
 
     def set_time(self,date='today'):
         '''Sets the time to now'''
         if date == 'today':
             self.time_now = Time.now()
 
-    def set_night(self,date=None, ):
+    def set_night(self,date=None ):
         '''
         Takes date in format dd/mm/yy and sets the night as starting on the date before
         arguments: date (str)
