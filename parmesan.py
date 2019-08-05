@@ -32,7 +32,7 @@ def parser():
 
 class marshall_list():
 
-    def __init__(self,df,site= 'La Silla',newax=True):
+    def __init__(self,df,site= 'La Silla',newax=True,count=0):
         self.df = df
         self._set_observatory(site)
         if site == 'La Silla':
@@ -40,7 +40,7 @@ class marshall_list():
         self._set_tonight()
         if newax:
             self._plot_base()
-        self.counter=0
+        self.counter=count
 
     def _set_observatory(self,site):
         '''Sets the observatory site'''
@@ -157,9 +157,10 @@ class marshall_list():
         }
         for counter,i in enumerate(self.df.sort_values(by='discovery date',ascending=False).index):
             counter= counter+self.counter
+
             obj = self.df.loc[i]
 
-            print('Doing %s'%obj['name'])
+            print('Doing %s'%obj['name'],counter)
             priority = obj['priority']
             altaz = self.get_obj_altaz(obj['ra'],obj['dec'])
             self.plot_vis_obj(altaz,
@@ -180,6 +181,7 @@ class marshall_list():
         ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
                   ncol=1, fancybox=True, shadow=True)
         self.counter=counter+1
+        print('Finished plotting %s objects'%self.counter)
 
     def plot_priority_followup(self,ax=None,priority='ALL'):
         '''
@@ -203,7 +205,7 @@ class marshall_list():
             counter = counter+self.counter
             obj = self.df.loc[i]
 
-            print('Doing %s'%obj['name'])
+            print('Doing %s'%obj['name'],counter)
             priority = obj['priority']
             altaz = self.get_obj_altaz(obj['ra'],obj['dec'])
             self.plot_vis_obj(altaz,
@@ -216,7 +218,7 @@ class marshall_list():
                 altaz.alt.to_value().max())
             xytext = (mdates.date2num(altaz.obstime[altaz.alt.to_value().argmax()].to_datetime()),
                 altaz.alt.to_value().max()+1)
-            ax.annotate(counter,xy=xy,xytext=xytext,color='w',size=9)
+            ax.annotate(counter+1,xy=xy,xytext=xytext,color='w',size=9)
             null_patches.append(mpatches.Patch(color='white',
                                 label = str(counter+1) + ': '+obj['name'],
                                                ))
@@ -226,6 +228,7 @@ class marshall_list():
         ax.legend(handles=null_patches,title="Objects", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
                   ncol=1, fancybox=True, shadow=True)
         self.counter=counter
+        print('Finished plotting %s objects'%self.counter)
 
 
 def main():
