@@ -29,6 +29,71 @@ def parser():
     return parser.parse_args()
 
 
+def convert_ut_dt(ut):
+    '''
+    Converts a time from string format ('%H:%M') to datetime
+    Assumes times 12<ut<24 are pre midnight and 00<ut<12 are post midnight
+    arguments:
+        ut (str): UT string to convert
+    returns:
+        dt (datetime): UT converted to datetime object
+    '''
+    if 12<int(ut[:2])<24:
+        date = datetime.now().date()
+    else:
+        date = datetime.now().date() +timedelta(1)
+    t = time(hour =int(ut[:2]),minute=int(ut[3:]))
+    dt = datetime.combine(date,t)
+    return(dt)
+
+def block_obs(ax,utstart,utend=None,name=None,tobs = None,obstype = 'Class'):
+    '''
+    Plots a horizontal line between utstart and utend,
+     or from utstart for time tobs
+    parameters:
+        ax (axes instance: the plt axes to plot on
+        utstart (str): start time in format HH:MM
+        utend (str): end time in format HH:MM
+        tobs (str): length of observation in HH:MM
+    returns:
+        utend (str): time at the end of this OB
+        '''
+    dt_start = convert_ut_dt(utstart)
+
+    if not utend:
+        t = time(hour =int(tobs[:2]),minute=int(tobs[3:]))
+        td = timedelta(days=0,hours = t.hour,minutes = t.minute)
+        dt_end = dt_start+td
+        utend = datetime.strftime(dt_end,'%H:%M')
+    else:
+        dt_end = convert_ut_dt(utend)
+    print('Observe %s from %s to %s'%(name,datetime.strftime(dt_start,'%H:%M'),
+                                      datetime.strftime(dt_end,'%H:%M')))
+    ax.hlines(15,dt_start,dt_end,linewidth=8,color='y',zorder=4)
+    ax.vlines(dt_start,13,20,linewidth=2.5,color='r',zorder=5)
+    if name:
+
+        xy = (dt_start,
+            10)
+        xytext = (dt_start,
+                  10 )
+        ax.annotate(name,xy=xy,xytext=xytext,color='c',size=12,rotation=-60,zorder=6)
+    return utend
+
+def plot_nightplan(objfile,tstart,ax = None):
+    '''
+    Plots a nightplan given a list of objects, their OB length, and a start time
+    parameters:
+        objfile (str): filename of text file with columns objname and ob_length (HH:MM)
+        tstart (str): start time in UT in format HH:MM
+        ax (axes object): the axes to plot on
+    '''
+    if not ax:
+        ax = plt.gca()
+    objs = np.loadtxt(objfile,dtype='str')
+    for obj in objs:
+        tstart = block_obs(ax,tstart,tobs=obj[1],name=obj[0])
+
 
 class marshall_list():
 
@@ -86,7 +151,6 @@ class marshall_list():
         ax.xaxis.set_major_formatter(hours_fmt)
 
         # LEGEND
-
 
         # Axes Limits and Labels
         plt.grid(color='w',alpha=0.7)
