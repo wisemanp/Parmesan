@@ -78,6 +78,7 @@ class marshall_list():
                          sunaltazs_tonight.alt < -18*u.deg, color='k', zorder=0)
         plt.fill_between(t, 0, 90,
                          sunaltazs_tonight.alt >= 0*u.deg, color='deepskyblue', zorder=0)
+        plt.fill_between(t,0,20,color='lightgrey',zorder=3)
         ####################################
 
         xloc = ax.xaxis.set_major_locator(HourLocator(byhour=range(0,24,1)))
