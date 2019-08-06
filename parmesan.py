@@ -70,7 +70,7 @@ class marshall_list():
         ax.hlines(20,t[0],t[-1],linestyle='--',color='white',linewidth=3)
         sunaltazs_tonight = get_sun(self.tonight.obstime).transform_to(self.tonight)
         self.plot_vis_obj(sunaltazs_tonight,ax =ax,
-                     linestyle='dashed',label = 'Sun',color='orange',linewidth=10)
+                     linestyle='dashed',label = 'Sun',color='orange',linewidth=10,zorder=6)
 
         plt.fill_between(t, 0, 90,
                          sunaltazs_tonight.alt < -0*u.deg, color='midnightblue', zorder=0)
@@ -217,7 +217,7 @@ class marshall_list():
                                                ))
         fontP = FontProperties()
         fontP.set_size('small')
-        l = plt.legend(handles=null_patches,title="Classifications", prop=fontP,loc='upper center', bbox_to_anchor=(0.9, 1),
+        l = plt.legend(handles=null_patches,title="Classifications", prop=fontP,loc='upper center', bbox_to_anchor=(1.05, 0.7),
                   ncol=1, fancybox=True, shadow=True)
         ax.add_artist(l)
         self.counter=counter+1
